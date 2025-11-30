@@ -13,4 +13,12 @@ interface RetrofitDataService {
         @Query("page") pageNo: Int
     ): Call<List<PhotosModel>>
 
+    @GET("photos")
+    suspend fun getPhotosList(
+        @Query("client_id") accessKey: String,
+        @Query("page") pageNo: Int
+    ): List<PhotosModel>
+
+
+
 }

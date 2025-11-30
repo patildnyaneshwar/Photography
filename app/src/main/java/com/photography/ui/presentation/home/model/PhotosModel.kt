@@ -26,7 +26,8 @@ data class PhotosModel(
     @SerializedName("sponsorship") val sponsorship: Sponsorship?,
     @SerializedName("user") val user: User?,
     @SerializedName("urls") val urls: Urls?,
-    @SerializedName("links") val links: Links?
+    @SerializedName("links") val links: Links?,
+    @SerializedName("page") val page: Int
 ): Parcelable
 
 @Parcelize

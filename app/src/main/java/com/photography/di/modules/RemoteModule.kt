@@ -1,5 +1,6 @@
 package com.photography.di.modules
 
+import com.photography.BuildConfig
 import com.photography.data.remote.client.RetrofitDataService
 import com.photography.utils.ConstantUrls
 import dagger.Module
@@ -20,35 +21,36 @@ object RemoteModule {
     @Provides
     fun provideBaseUrl() = ConstantUrls.BASE_URL
 
-//    @Singleton
-//    @Provides
-//    fun provideOkHttpClient(): OkHttpClient = if (BuildConfig.DEBUG) {
-//        val loggingInterceptor = HttpLoggingInterceptor()
-//        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
-//        OkHttpClient.Builder()
-//            .addInterceptor(loggingInterceptor)
-//            .build()
-//    } else {
-//        OkHttpClient
-//            .Builder()
-//            .build()
-//    }
-
     @Singleton
     @Provides
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideOkHttpClient(): OkHttpClient = if (BuildConfig.DEBUG) {
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
-        return OkHttpClient.Builder()
+        OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
+            .build()
+    } else {
+        OkHttpClient
+            .Builder()
             .build()
     }
 
+//    @Singleton
+//    @Provides
+//    fun provideOkHttpClient(): OkHttpClient {
+//        val loggingInterceptor = HttpLoggingInterceptor()
+//        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+//        return OkHttpClient.Builder()
+//            .addInterceptor(loggingInterceptor)
+//            .build()
+//    }
+
     @Provides
     @Singleton
-    fun provideRetrofit(client: OkHttpClient, BASE_URL: String): Retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
+    fun provideRetrofit(client: OkHttpClient, baseUrl: String): Retrofit = Retrofit.Builder()
+        .baseUrl(baseUrl)
         .addConverterFactory(GsonConverterFactory.create())
+        .client(client)
         .build()
 
     @Provides

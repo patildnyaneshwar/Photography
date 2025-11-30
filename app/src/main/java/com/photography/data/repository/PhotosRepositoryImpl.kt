@@ -1,72 +1,51 @@
 package com.photography.data.repository
 
-import android.util.Log
-import com.photography.data.local.data_source.PhotosLocalDataSource
-import com.photography.data.remote.client.ResponseEvent
-import com.photography.data.remote.data_source.PhotosRemoteDataSource
-import com.photography.di.qualifiers.IoDispatcher
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import com.photography.data.local.database.daos.PhotosDao
+import com.photography.data.remote.client.Result
+import com.photography.data.remote.client.RetrofitDataService
+import com.photography.data.remote.client.toResultFlow
+import com.photography.data.remote.data_source.PhotosRemoteMediator
 import com.photography.ui.presentation.home.model.PhotosModel
-import com.photography.utils.ConstantUrls
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import retrofit2.awaitResponse
 import javax.inject.Inject
 
 class PhotosRepositoryImpl @Inject constructor(
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val photosLocalDataSource: PhotosLocalDataSource,
-    private val photosRemoteDataSource: PhotosRemoteDataSource
-): PhotosRepository {
+    private val retrofitDataService: RetrofitDataService,
+    private val photosDao: PhotosDao,
+    private val photosRemoteMediator: PhotosRemoteMediator
+) : PhotosRepository {
     private val TAG = "PhotosRepositoryImpl"
-
-    private val _photosListFlow = MutableStateFlow<ResponseEvent>(ResponseEvent.Loading)
-    override val photosListFlow: Flow<ResponseEvent> = _photosListFlow.asStateFlow()
 
     override suspend fun getPhotos(
         accessKey: String,
         pageNo: Int
-    ) {
-        photosRemoteDataSource.getPhotos(accessKey, pageNo) { event ->
-            CoroutineScope(ioDispatcher).launch {
-                _photosListFlow.update { event }
-                when (event) {
-                    is ResponseEvent.Success -> {
-                        val list: List<PhotosModel> = event.data as List<PhotosModel>
-                        photosLocalDataSource.insertAllPhotos(list)
-                    }
-
-                    else -> {
-
-                    }
-                }
-            }
-        }
+    ): Flow<Result<List<PhotosModel>>> = toResultFlow {
+        retrofitDataService.getPhotos(accessKey = accessKey, pageNo = pageNo).awaitResponse()
     }
 
-    override suspend fun getAllPhotos() {
-        photosLocalDataSource.getAllPhotos().catch {
-            Log.e(TAG, "getPhotos: %s", it)
-            ResponseEvent.Failure(it)
-        }.collectLatest { list ->
-            Log.d(TAG, "getPhotos: $list")
-            _photosListFlow.update { ResponseEvent.Success(list) }
-            if (list.isEmpty()) {
-                getPhotos(accessKey = ConstantUrls.ACCESS_KEY, pageNo = 0)
-            }
-        }
+    @OptIn(ExperimentalPagingApi::class)
+    override fun getAllPhotos(): Flow<PagingData<PhotosModel>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 10,
+                enablePlaceholders = false,
+                prefetchDistance = 3
+            ),
+            remoteMediator = photosRemoteMediator,
+            pagingSourceFactory = { photosDao.getAllPhotos() }
+        ).flow
     }
 
     override suspend fun deleteAllPhotos() {
-        photosLocalDataSource.deleteAllPhotos()
+        photosDao.deleteAllPhotos()
     }
 
     override suspend fun insertAllPhotos(data: List<PhotosModel>) {
-        photosLocalDataSource.insertAllPhotos(data)
+        photosDao.insertAllPhotos(photos = data)
     }
 }
