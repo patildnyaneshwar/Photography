@@ -35,16 +35,6 @@ object RemoteModule {
             .build()
     }
 
-//    @Singleton
-//    @Provides
-//    fun provideOkHttpClient(): OkHttpClient {
-//        val loggingInterceptor = HttpLoggingInterceptor()
-//        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
-//        return OkHttpClient.Builder()
-//            .addInterceptor(loggingInterceptor)
-//            .build()
-//    }
-
     @Provides
     @Singleton
     fun provideRetrofit(client: OkHttpClient, baseUrl: String): Retrofit = Retrofit.Builder()

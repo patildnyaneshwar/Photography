@@ -42,27 +42,4 @@ class PhotosViewModel @Inject constructor(
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     val photosPagingData: Flow<PagingData<PhotosModel>> = photosRepository.getAllPhotos().cachedIn(viewModelScope)
-
-    init {
-        getPhotos(pageNo = 1)
-    }
-
-
-
-    fun getPhotos(pageNo: Int) = viewModelScope.launch(context = ioDispatcher) {
-        photosRepository.getPhotos(accessKey = ConstantUrls.ACCESS_KEY, pageNo = pageNo).collect { result ->
-            when(result) {
-                Result.Loading -> {
-                    _uiState.update { state -> state.copy(isLoading = true) }
-                }
-                is Result.Error -> {
-                    _uiState.update { state -> state.copy(isLoading = false) }
-                }
-                is Result.Success -> {
-                    _uiState.update { state -> state.copy(isLoading = false, list = result.data) }
-                }
-            }
-        }
-    }
-
 }

@@ -8,12 +8,6 @@ import retrofit2.http.Query
 interface RetrofitDataService {
 
     @GET("photos")
-    fun getPhotos(
-        @Query("client_id") accessKey: String,
-        @Query("page") pageNo: Int
-    ): Call<List<PhotosModel>>
-
-    @GET("photos")
     suspend fun getPhotosList(
         @Query("client_id") accessKey: String,
         @Query("page") pageNo: Int

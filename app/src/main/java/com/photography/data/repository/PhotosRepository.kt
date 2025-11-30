@@ -8,8 +8,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface PhotosRepository {
 
-    suspend fun getPhotos(accessKey: String, pageNo: Int): Flow<Result<List<PhotosModel>>>
-
     fun getAllPhotos(): Flow<PagingData<PhotosModel>>
 
     suspend fun deleteAllPhotos()
