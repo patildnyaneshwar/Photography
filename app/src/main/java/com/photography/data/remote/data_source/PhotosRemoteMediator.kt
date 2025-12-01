@@ -43,7 +43,6 @@ class PhotosRemoteMediator @Inject constructor(
 
             Log.d(TAG, "No of times  PhotosRemoteMediator called")
             val items = retrofitDataService.getPhotosList(
-                accessKey = ConstantUrls.ACCESS_KEY,
                 pageNo = page
             )
             val endOfPaginationReached = items.isEmpty()

@@ -1,13 +1,14 @@
-package com.photography.data.repository
+package com.photography.domain.repository
 
 import androidx.paging.PagingData
-import com.photography.data.remote.client.ResponseEvent
 import com.photography.data.remote.client.Result
+import com.photography.domain.model.PhotoOfTheDayModel
 import com.photography.ui.presentation.home.model.PhotosModel
 import kotlinx.coroutines.flow.Flow
 
 interface PhotosRepository {
 
+    fun getPhotoOfTheDay(): Flow<Result<PhotoOfTheDayModel>>
     fun getAllPhotos(): Flow<PagingData<PhotosModel>>
 
     suspend fun deleteAllPhotos()

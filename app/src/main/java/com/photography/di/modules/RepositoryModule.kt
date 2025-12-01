@@ -1,6 +1,6 @@
 package com.photography.di.modules
 
-import com.photography.data.repository.PhotosRepository
+import com.photography.domain.repository.PhotosRepository
 import com.photography.data.repository.PhotosRepositoryImpl
 import dagger.Binds
 import dagger.Module

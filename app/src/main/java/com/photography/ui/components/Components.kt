@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import com.photography.R
 
@@ -22,7 +23,7 @@ fun ScreenTopAppBar() {
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.titleMedium.copy(color = colorResource(R.color.primary)),
+                style = MaterialTheme.typography.titleMedium.copy(color = colorResource(R.color.primary), fontWeight = FontWeight.SemiBold),
                 textAlign = TextAlign.Center
             )
         }

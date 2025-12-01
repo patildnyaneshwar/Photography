@@ -1,6 +1,7 @@
 package com.photography.di.modules
 
 import com.photography.BuildConfig
+import com.photography.data.remote.client.AuthInterceptor
 import com.photography.data.remote.client.RetrofitDataService
 import com.photography.utils.ConstantUrls
 import dagger.Module
@@ -23,28 +24,42 @@ object RemoteModule {
 
     @Singleton
     @Provides
-    fun provideOkHttpClient(): OkHttpClient = if (BuildConfig.DEBUG) {
-        val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
-        OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)
-            .build()
+    fun provideLoggingInterceptor(): HttpLoggingInterceptor = if (BuildConfig.DEBUG) {
+        HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
     } else {
-        OkHttpClient
-            .Builder()
-            .build()
+        HttpLoggingInterceptor()
     }
 
-    @Provides
     @Singleton
-    fun provideRetrofit(client: OkHttpClient, baseUrl: String): Retrofit = Retrofit.Builder()
-        .baseUrl(baseUrl)
-        .addConverterFactory(GsonConverterFactory.create())
-        .client(client)
+    @Provides
+    fun provideAuthInterceptorClient(): AuthInterceptor = AuthInterceptor()
+
+    @Singleton
+    @Provides
+    fun provideOkHttpClient(
+        authInterceptor: AuthInterceptor,
+        loggingInterceptor: HttpLoggingInterceptor
+    ): OkHttpClient = OkHttpClient.Builder()
+        .addInterceptor(authInterceptor)
+        .addInterceptor(loggingInterceptor)
         .build()
 
     @Provides
     @Singleton
-    fun provideRetrofitDataService(retrofit: Retrofit): RetrofitDataService = retrofit.create(RetrofitDataService::class.java)
+    fun provideRetrofit(
+        baseUrl: String,
+        okHttpClient: OkHttpClient
+    ): Retrofit = Retrofit.Builder()
+        .baseUrl(baseUrl)
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(okHttpClient)
+        .build()
+
+    @Provides
+    @Singleton
+    fun provideRetrofitDataService(retrofit: Retrofit): RetrofitDataService =
+        retrofit.create(RetrofitDataService::class.java)
 
 }

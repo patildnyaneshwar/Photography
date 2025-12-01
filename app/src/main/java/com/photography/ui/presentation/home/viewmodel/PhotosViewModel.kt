@@ -9,7 +9,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.photography.data.remote.client.ResponseEvent
 import com.photography.data.remote.client.Result
-import com.photography.data.repository.PhotosRepository
+import com.photography.domain.repository.PhotosRepository
 import com.photography.di.qualifiers.IoDispatcher
 import com.photography.ui.presentation.home.model.PhotosModel
 import com.photography.ui.presentation.home.view.HomeUiState

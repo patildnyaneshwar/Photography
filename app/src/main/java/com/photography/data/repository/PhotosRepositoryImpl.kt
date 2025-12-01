@@ -5,10 +5,15 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.photography.data.local.database.daos.PhotosDao
+import com.photography.data.remote.client.Result
 import com.photography.data.remote.client.RetrofitDataService
+import com.photography.data.remote.client.toResultFlow
 import com.photography.data.remote.data_source.PhotosRemoteMediator
+import com.photography.domain.model.PhotoOfTheDayModel
+import com.photography.domain.repository.PhotosRepository
 import com.photography.ui.presentation.home.model.PhotosModel
 import kotlinx.coroutines.flow.Flow
+import retrofit2.awaitResponse
 import javax.inject.Inject
 
 class PhotosRepositoryImpl @Inject constructor(
@@ -17,6 +22,10 @@ class PhotosRepositoryImpl @Inject constructor(
     private val photosRemoteMediator: PhotosRemoteMediator
 ) : PhotosRepository {
     private val TAG = "PhotosRepositoryImpl"
+
+    override fun getPhotoOfTheDay(): Flow<Result<PhotoOfTheDayModel>> = toResultFlow {
+        retrofitDataService.getPhotoOfTheDay().awaitResponse()
+    }
 
     @OptIn(ExperimentalPagingApi::class)
     override fun getAllPhotos(): Flow<PagingData<PhotosModel>> {
